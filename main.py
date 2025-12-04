@@ -19,6 +19,7 @@
 # from flet import Text, TextField
 
 import flet as ft
+from datetime import datetime
 
 def main(page: ft.Page):
     page.title = 'Мое первое приложение'
@@ -31,9 +32,10 @@ def main(page: ft.Page):
     def on_button_click(_):
         print(name_input.value)
         name = name_input.value.strip()
+        time = datetime.now()
 
         if name:
-            greeting_text.value = f'Hello {name}'
+            greeting_text.value = f'Hello {name}, {time}'
             greeting_text.color = None
         else:
             greeting_text.value = 'Введите корректное имя'
@@ -56,7 +58,7 @@ def main(page: ft.Page):
 
     icon_button = ft.IconButton(icon=ft.Icons.BRIGHTNESS_6, on_click=on_button_click)
 
-    icon_button_mode = ft.IconButton(icon=ft.Icons.BRIGHTNESS_6, on_click=on_button_click_mode)
+    icon_button_mode = ft.IconButton(icon=ft.Icons.BRIGHTNESS_7, on_click=on_button_click_mode)
 
     
 
