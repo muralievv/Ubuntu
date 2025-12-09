@@ -91,7 +91,7 @@ import flet as ft
 def main(page: ft.Page):
     page.title = 'Мое первое приложение'
     page.theme_mode = ft.ThemeMode.LIGHT
-    greeting_text = ft.Text(value='Hello world')
+    greeting_text = ft.Text(spans=[ft.TextSpan(text='Hello world')])
 
     greeting_history = []
     history_text = ft.Text(value='История приветствий:')
@@ -106,7 +106,11 @@ def main(page: ft.Page):
         name = name_input.value.strip()
 
         if name:
-            greeting_text.value = f'Hello {name}'
+            greeting_text.spans = [
+                ft.TextSpan(text="Hello "),
+                ft.TextSpan(text = f'{name}', style = ft.TextStyle(color=ft.Colors.GREEN, weight=ft.FontWeight.BOLD)),
+                ft.TextSpan(text = "!")
+            ]
             greeting_text.color = None
             name_input.value = None
 
@@ -116,7 +120,7 @@ def main(page: ft.Page):
             with open("history.txt", "a") as f:
                 f.write(name+"\n")
         else:
-            greeting_text.value = 'Введите корректное имя'
+            greeting_text.spans = [ft.TextSpan(text='Введите корректное имя')]
             greeting_text.color = ft.Colors.RED
         page.update()
         
@@ -132,13 +136,16 @@ def main(page: ft.Page):
     icon_button = ft.IconButton(icon=ft.Icons.BRIGHTNESS_6, on_click=on_button_click)
     
     def on_button_click_favourite(_):
+        if greeting_history:
             greeting_history_favourite.append(greeting_history[-1])
             print(greeting_history_favourite)
             history_text_favourite.value = "История любимых: \n" + "\n".join(greeting_history_favourite)
-        
-            greeting_text.value = 'Введите корректное имя'
+            greeting_text.spans = [ft.TextSpan(text=f'Добавлено в любимые: {greeting_history[-1]}')]
+            greeting_text.color = ft.Colors.GREEN
+        else:
+            greeting_text.spans = [ft.TextSpan(text='История приветствий пуста')]
             greeting_text.color = ft.Colors.RED
-            page.update()
+        page.update()
 
            
     
@@ -160,15 +167,59 @@ def main(page: ft.Page):
     def clear_history(_):
         greeting_history.clear()
         history_text.value = 'История приветствий:'
-        greeting_text.value = 'История очищена'
+        greeting_text.spans = [
+            ft.TextSpan(text='История очищена', style=ft.TextStyle(color=ft.Colors.GREEN))]
         page.update()
 
     # name_input.on_submit = clear_history
 
     clear_button = ft.IconButton(icon=ft.Icons.DELETE, on_click=clear_history)
 
+    def delete_last(_):
+        if greeting_history:
+            remove_last = greeting_history.pop()
+            history_text.value = "История приветствий: \n" + "\n".join(greeting_history)
+            greeting_text.spans = [ft.TextSpan(text=f'Последняя история удалена: {remove_last}')]
+            greeting_text.color = ft.Colors.GREEN
+        else:
+            greeting_text.spans = [ft.TextSpan(text='История пустая')]
+            greeting_text.color = ft.Colors.RED
+        page.update()
+
+
+
+    delete_last_button = ft.ElevatedButton(text="Delete last", icon=ft.Icons.DELETE, on_click = delete_last)
+
+    def sorted_history(_):
+        if greeting_history:
+            sorted_names = greeting_history.sort()
+            history_text.value = "История приветствий: \n" + "\n".join(sorted(greeting_history))
+            greeting_text.spans = [ft.TextSpan(text="История отсортирована")]
+            greeting_text.color = ft.Colors.GREEN
+        else:
+            greeting_text.spans = [ft.TextSpan(text="История пуста")]
+            greeting_text.color = ft.Colors.RED
+        page.update()
+
+
+    sorted_button = ft.ElevatedButton(text="sorted_history", icon=ft.Icons.SORT, on_click=sorted_history)
+
+
+    def delete_last_favourite(_):
+        if greeting_history_favourite:
+            remove_last = greeting_history_favourite.pop()
+            history_text_favourite.value = "История любимых: \n:" + "\n".join(greeting_history_favourite)
+            greeting_text.spans = [ft.TextSpan(text=f'Последняя из любимых удалена: {remove_last}')]
+            greeting_text.color = ft.Colors.GREEN
+        else:
+            greeting_text.spans = [ft.TextSpan(text="История любимых пуста")]
+            greeting_text.color = ft.Colors.RED
+        page.update()
+
+    delete_last_favourite = ft.ElevatedButton(text="Delete last favourite", icon=ft.Icons.DELETE, on_click = delete_last_favourite)
+
     # page.add(greeting_text, name_input, text_button, elevated_button, icon_button)
 
-    page.add(greeting_text, ft.Row([name_input, elevated_button, clear_button]), history_text, elevated_button_favourite, history_text_favourite, icon_button_mode)
+    page.add(greeting_text, ft.Row([name_input, elevated_button, clear_button]), history_text, elevated_button_favourite, history_text_favourite, icon_button_mode, delete_last_button, sorted_button, delete_last_favourite)
 
 ft.app(target=main)
